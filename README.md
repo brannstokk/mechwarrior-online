@@ -72,5 +72,6 @@ issues, I use this 6.21 Wine build exclusively for MWO.
 See also:
 
 <https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__st__20__p__6195387#entry6195387>
+
 <https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__st__20__p__6222284#entry6222284>
 
