@@ -16,6 +16,17 @@ writing, Xeon ES-1650v3 @ 3.8 GHz) with `acpitool -s` with the
 throttled to 31% of its maximum frequency and will not exceed that
 until I change the governor.
 
+## mwo.module
+
+[Environment Module](http://modules.sourceforge.net/) for MWO.  Sets
+up Wine prefix, sets environment variables, etc.
+
+## dxvk.conf
+
+DXVK configuration file.  Never used this for any other games, but
+some settings were suggested in [this
+thread](https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__view__findpost__p__6222284).
+
 ## tuning.cfg
 
 It seems everyone uses this to invoke their user.cfg.

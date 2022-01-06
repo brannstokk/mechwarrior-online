@@ -1,0 +1,67 @@
+#%Module 1.0
+
+# Wine forum post with Wine source patch
+# https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__st__20__p__6195387#entry6195387
+
+module-whatis "Mechwarrior Online -- https://mwomercs.com/"
+
+module-version mwo current
+
+set winever 6.21
+
+module load wine/$winever
+
+setenv WINEPREFIX /usr/local/games/wine/$winever-mwo
+
+setenv MWO $env(WINEPREFIX)
+
+# https://wiki.archlinux.org/index.php/World_of_Warcraft#For_NVIDIA_users
+setenv __GL_THREADED_OPTIMIZATIONS 1
+
+set shader_cache /tmp/$env(USER)/shaders/mechwarrioronline
+file mkdir $shader_cache
+setenv __GL_SHADER_DISK_CACHE 1
+setenv __GL_SHADER_DISK_CACHE_PATH $shader_cache
+setenv __GL_SHADER_DISK_CACHE_SKIP_CLEANUP 1
+
+# https://github.com/doitsujin/dxvk/issues/267
+# setenv __GL_NextGenCompiler 0
+
+# Recommended in a comment on Wine HQ AppDB
+# https://download.nvidia.com/XFree86/Linux-x86_64/352.79/README/openglenvvariables.html
+# setenv __GL_SYNC_TO_VBLANK 0
+
+# https://appdb.winehq.org/objectManager.php?sClass=version&iId=38181
+# https://github.com/wine-compholio/wine-staging/wiki/Environment-Variables
+setenv STAGING_SHARED_MEMORY 1
+setenv STAGING_WRITECOPY 1
+
+# https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__view__findpost__p__6222284
+setenv DXVK_CONFIG_FILE [file join [file dirname $ModulesCurrentModulefile] dxvk.conf]
+# Suggested dxvk.conf file; X is your number of cores
+#   dxgi.nvapiHack = True
+#   dxvk.numCompilerThreads = X
+setenv DXVK_ASYNC 1
+setenv DXVK_STATE_CACHE 0
+setenv __GL_NextGenCompiler 1
+
+# https://bbs.archlinux.org/viewtopic.php?id=205007
+# OpenGL vblank
+setenv __GL_SYNC_TO_VBLANK 0
+
+# Wine vblank
+setenv vblank_mode 0
+
+# setenv WINEESYNC 1;             # this will prevent opening another
+#                                 # application with wine unless it also
+#                                 # has WINESYNC set; see:
+#                                 # https://simpler-website.pages.dev/html/2021/1/wine-environment-variables
+# setenv WINEDEBUG -all,+esync
+setenv WINEDEBUG -all
+
+setenv APPLICATION_DIR $env(MWO)
+
+# -noprompt -anygpu
+setenv APPLICATION_COMMAND "wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu"
+
+chdir $env(WINEPREFIX)
