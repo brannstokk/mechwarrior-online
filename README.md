@@ -46,24 +46,26 @@ settings in-game.  See: <https://mwomercs.com/forums/topic/158148-what-does-moti
 I built Wine 6.21 with wine-staging patches and the following
 additional patch in order to be able to get MWO to work.
 
-    diff --git a/dlls/ntdll/path.c b/dlls/ntdll/path.c
-    index 47196067cd4..296a22e98d8 100644
-    --- a/dlls/ntdll/path.c
-    +++ b/dlls/ntdll/path.c
-    @@ -517,10 +517,9 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size)
+```diff
+diff --git a/dlls/ntdll/path.c b/dlls/ntdll/path.c
+index 47196067cd4..296a22e98d8 100644
+--- a/dlls/ntdll/path.c
++++ b/dlls/ntdll/path.c
+@@ -517,10 +517,9 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size)
 
-         RtlAcquirePebLock();
+     RtlAcquirePebLock();
 
-    -    if (NtCurrentTeb()->Tib.SubSystemTib)  /* FIXME: hack */
-    -        cd = &((WIN16_SUBSYSTEM_TIB *)NtCurrentTeb()->Tib.SubSystemTib)->curdir.DosPath;
-    -    else
-    -        cd = &NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory.DosPath;
-    +	/* Mechwarrior Online */
-    +	/* https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__st__20__p__6195387#entry6195387 */
-    +    cd = &NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory.DosPath;
+-    if (NtCurrentTeb()->Tib.SubSystemTib)  /* FIXME: hack */
+-        cd = &((WIN16_SUBSYSTEM_TIB *)NtCurrentTeb()->Tib.SubSystemTib)->curdir.DosPath;
+-    else
+-        cd = &NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory.DosPath;
++	/* Mechwarrior Online */
++	/* https://mwomercs.com/forums/topic/268847-running-the-game-on-ubuntu-steam-play/page__st__20__p__6195387#entry6195387 */
++    cd = &NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory.DosPath;
 
-         switch (RtlDetermineDosPathNameType_U(name))
-         {
+     switch (RtlDetermineDosPathNameType_U(name))
+     {
+```
 
 Apparently the Wine developers find this patch so abhorrent that they
 refuse AppDB reports for MWO.  Since it sounds like it can cause
