@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Tried variations of this but couldn't get it to work correctly...
+# sudo -E nice -n -20 su $USER -pc "wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu"
+# sudo nice -n -20 su -l -c "module load mwo; env DISPLAY=:0 wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu" $USER
+
+current_governor=$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | uniq)
+
+if [ "$current_governor" != "performance" ]; then
+    echo "Setting CPU governor to 'performance'."
+    sudo cpupower frequency-set --governor performance
+fi
+
+wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+
+WINE_PID=$!
+
+sudo renice -n -20 $WINE_PID
+
