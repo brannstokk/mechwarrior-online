@@ -1,14 +1,14 @@
 # mechwarrior-online
 
-Configuration files and scripts for Mechwarrior Online
+Configuration files and scripts for Mechwarrior Online on Linux.
 
 ## mwo
 
 Wrapper for launching MWO through Wine and ensuring CPU governor is
-set to performance.  The MWO/CryEngine/Wine combination is CPU-bound
+set to "performance".  The MWO/CryEngine/Wine combination is CPU-bound
 on my machine.  For whatever reason, the default "ondemand" CPU
 governor is not aggressive enough about prioritizing MWO.  Setting it
-to "ondemand" increased my framerates to a playable number.
+to "performance" increased my framerates to a playable number.
 
 Also worth noting is that if I suspend my machine (at the time of
 writing, Xeon ES-1650v3 @ 3.8 GHz) with `acpitool -s` with the
@@ -19,7 +19,7 @@ until I change the governor.
 ## mwo.module
 
 [Environment Module](http://modules.sourceforge.net/) for MWO.  Sets
-up Wine prefix, sets environment variables, etc.
+up Wine prefix, environment variables, etc.
 
 ## dxvk.conf
 
