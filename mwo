@@ -11,6 +11,14 @@ if [ "$pre_game_cpu_governor" != "performance" ]; then
     sudo cpupower frequency-set --governor performance
 fi
 
+# Stop audio crackling
+# https://www.reddit.com/r/wine_gaming/comments/83j0mh/wine_and_pulse_audio_latency/
+export PULSE_LATENCY_MSEC=60
+
+# Also, if you're using a sound mod, add...
+# s_MaxChannels = 64
+# ...to your user.cfg.
+
 wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
 
 WINE_PID=$!
