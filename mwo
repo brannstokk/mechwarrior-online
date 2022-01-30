@@ -4,9 +4,9 @@
 # sudo -E nice -n -20 su $USER -pc "wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu"
 # sudo nice -n -20 su -l -c "module load mwo; env DISPLAY=:0 wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu" $USER
 
-current_governor=$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | uniq)
+pre_game_cpu_governor=$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | uniq)
 
-if [ "$current_governor" != "performance" ]; then
+if [ "$pre_game_cpu_governor" != "performance" ]; then
     echo "Setting CPU governor to 'performance'."
     sudo cpupower frequency-set --governor performance
 fi
@@ -16,4 +16,11 @@ wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient
 WINE_PID=$!
 
 sudo renice -n -20 $WINE_PID
+
+wait $WINE_PID
+
+# If the CPU was in performance mode prior to the game leave it there
+if [ "$pre_game_cpu_governor" != "performance" ]; then
+	sudo cpupower frequency-set --governor $pre_game_cpu_governor
+fi
 
