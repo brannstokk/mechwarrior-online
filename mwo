@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PROG=mwo
+
 # Tried variations of this but couldn't get it to work correctly...
 # sudo -E nice -n -20 su $USER -pc "wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu"
 # sudo nice -n -20 su -l -c "module load mwo; env DISPLAY=:0 wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu" $USER
@@ -19,11 +21,51 @@ export PULSE_LATENCY_MSEC=60
 # s_MaxChannels = 64
 # ...to your user.cfg.
 
-wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+# Sun 03 Apr 2022 03:48:26 PM EDT  jlucas
+# Running with SCHED_FIFO at prio 90 locked my machine up, so I do not recommend.
+# schedtool -F -p 90 -a 0,1,2,3 -n -20 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+
+# Works.
+# schedtool -a 0,1,2,3 -n -20 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+
+# Good article about niceness, priority and scheduling for gaming
+# https://wiki.archlinux.org/title/gaming
+# Per that article...
+# schedtool -a 0,1,2,3 -n -5 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+# schedtool -a 0,2,4,6 -n -5 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+# schedtool -a 0,1,2,3,4,5,6,7 -n -5 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+
+CPUS=2,3,4,5
+# CPUS=6,7,8,9,10,11
+
+# NOTE Uncomment these two lines to enable MangoHUD
+# export MANGOHUD_CONFIGFILE=/nfs/modules/mwo/mangohud.conf
+# export MANGOHUD=mangohud
+
+# schedtool -a $CPUS -n -5 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+# schedtool -n -5 -e wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
+schedtool -R -p 15 -n -5 -e $MANGOHUD wine '/usr/local/games/steam/steamapps/common/MechWarrior Online/Bin64/MWOClient.exe' -noprompt -anygpu &
 
 WINE_PID=$!
 
-sudo renice -n -20 $WINE_PID
+sleep 1
+
+WINESERVER_PID=$(ps aux | grep -- '[w]ineserver' | awk '{print $2}')
+WINESERVER_CORE_ID=$(echo $CPUS | awk -F, '{print $1}')
+
+# Requires, in /etc/security/limits.conf (or similar)...
+# <username>  -  rtprio  99
+# Otherwise, sudo it.
+if [ -n "$WINESERVER_PID" ]; then
+	# schedtool -a $CPUS -F -p 30 -n 19 $WINESERVER_PID
+	# schedtool -F -p 30 -n 19 $WINESERVER_PID
+	echo "$PROG: wineserver process PID: $WINESERVER_PID"
+	echo "$PROG: assigning wineserver process to core: $WINESERVER_CORE_ID"
+	schedtool -a $WINESERVER_CORE_ID -F -p 20 -n 19 $WINESERVER_PID
+fi
+
+# For more ideas, see also: https://github.com/FeralInteractive/gamemode
+# sudo renice -n -20 $WINE_PID $WINESERVER_PID
 
 wait $WINE_PID
 
